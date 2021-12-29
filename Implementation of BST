@@ -1,0 +1,502 @@
+package TreePackage;
+import java.util.Iterator;
+import java.util.Scanner;
+
+import org.w3c.dom.Node;
+
+interface StackInterface<T>{
+	public void push(T newEntry);
+	public T pop();
+	public T peek();
+	public boolean isEmpty();
+	public void clear();
+}
+
+interface TreeInterface<T>{
+	public T getRootData();
+	public int getHeight();
+	public int getNumberOfNodes();
+	public boolean isEmpty();
+	public void  clear();
+	public void inorderTraverse();
+		
+}
+
+interface TreeIteratorInterface<T>{
+	public Iterator<T> getPreorderIterator();
+	public Iterator<T> getPostorderIterator();
+	public Iterator<T> getInorderIterator();
+	public Iterator<T> getLevelOrderIterator();
+}
+
+interface BinaryTreeInterface<T> extends TreeInterface<T>, TreeIteratorInterface<T>{
+	
+	//Sets the data in the root of this binary tree
+	//@param rootData the Object that is the data for the trees root
+	public void setRootData(T rootData);
+	
+	//sets this binary tree to a new binary tree
+	//@param rootData the object that is the data for the new trees root
+	//@param leftree the left subtree of the new tree
+	//@param the right subtree of the new tree
+	public void setTree(T rootData, BinaryTreeInterface<T> leftTree, BinaryTreeInterface<T> rightTree);
+}
+interface SearchTreeInterface<T extends Comparable<? super T>> extends TreeInterface<T>{
+	//Searches for a specific entry in this tree
+	//@param anEntry an object to be found
+	//@returns True if the object was found in the tree.
+	public boolean contains(T anEntry);
+	//Retrieves a specific entry this tree
+	//@param anEntry an object to be found 
+	//@returns either the object that was found in the tree or null if no such object exists
+	public T getEntry(T anEntry);
+	//Adds a new entry to this tree, if it does not match an existing
+	//object in the tree otherwise, replaces the existing object with the new entry
+	//@param anEntry an object to be added to the tree
+	//@returns either null if anEntry was not in the tree but has been added, or the existing
+	//entry that matched the parameter anEntry and has been replaced in the tree.
+	public T add(T anEntry);
+	//removes a specific entry from this tree
+	//@param anEntry an object to be removed
+	//@returns Either the object that was removed from the tree or null if no such object exists
+	public T remove(T anEntry);
+	//creates an iterator that traverses all entries in this tree
+	//@returns an iterator that provides sequential and ordered access to the entries
+	public Iterator<T> getInorderIterator();
+}
+
+//BinarySearchTree class
+public class BinarySearchTree<T extends Comparable<? super T>> extends BinaryTree<T> implements SearchTreeInterface<T> {
+
+	
+	public BinarySearchTree() {
+		super();
+	}
+	
+	public BinarySearchTree(T rootEntry) {
+		super();
+		setRootNode(new BinaryNode<T> (rootEntry));
+	}
+	
+	public void setTree (T rootData) {
+		throw new UnsupportedOperationException();
+	}
+	
+	public void setTree(T rootData, BinaryTree<T> leftTree, BinaryTree<T> rightTree) {
+		throw new UnsupportedOperationException();
+	}
+
+
+	public boolean contains(T anEntry) {
+		return getEntry(anEntry) != null;
+	}
+
+
+	public T getEntry(T anEntry) {
+		return findEntry(getRootNode(), anEntry);
+	}
+
+	private T findEntry(BinaryNode<T> rootNode, T anEntry) {
+		T result = null;
+		if(rootNode != null) {
+			T rootEntry = rootNode.getData();
+			if(anEntry.equals(rootEntry))
+				result = rootEntry;
+			else if(anEntry.compareTo(rootEntry)<0)
+				result = findEntry(rootNode.getLeftChild(), anEntry);
+			else
+				result = findEntry(rootNode.getRightChild(), anEntry);
+		}
+		return result;
+	}
+
+	@Override
+	public T add(T newEntry) {
+		T result = null;
+		if(isEmpty())
+			setRootNode(new BinaryNode<T>(newEntry));
+		else
+			result = addEntry(getRootNode(), newEntry);
+		return result;
+	}
+	
+	private T addEntry(BinaryNode<T> rootNode, T newEntry) {
+		T result = null;
+		int comparison = newEntry.compareTo(rootNode.getData());
+		if(comparison == 0) {
+			result =rootNode.getData();
+			rootNode.setData(newEntry);
+		}
+		else if(comparison < 0) {
+			if(rootNode.hasLeftChild())
+				result = addEntry(rootNode.getLeftChild(), newEntry);
+			else
+				rootNode.setLeftChild(new BinaryNode<T>(newEntry));
+		}
+		else {
+			if(rootNode.hasRightChild())
+				result = addEntry(rootNode.getRightChild(), newEntry);
+			else
+				rootNode.setRightChild(new BinaryNode<T>(newEntry));
+		}
+		return result;	
+		
+	}
+
+	@Override
+	public T remove(T anEntry) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	//Driver method
+	public static void main(String[] args) {
+		BinarySearchTree<Integer> tree = new BinarySearchTree<Integer> ();
+		Integer a = 5;
+		Integer b = 24;
+		Integer c = 6;
+		Integer d = 45;
+		Integer e = 15;
+		tree.add(a);
+		tree.add(b);
+		tree.add(c);
+		tree.add(d);
+		tree.add(e);
+		System.out.println("The tree before sort: \n" + a + "\n" + b +"\n" + c + "\n" + d + "\n" + e);
+		
+		System.out.println("Tree after BST implementation");
+		tree.inorderTraverse(tree.root);
+		System.out.println("The height of the this tree is: " + tree.getHeight());
+		
+		Scanner sc = new Scanner(System.in);
+		System.out.println("Enter an entry youd like to find in the tree ");
+		int in = sc.nextInt();
+		tree.contains(in);
+		if(tree.contains(in)) {
+			System.out.println(in + " has been found in the tree");
+		}
+		else
+			System.out.println(in + " does not exist in the tree");
+	}
+	
+
+
+}//End BinarySearchTree class
+
+
+//Class that implements the ADT binary tree
+ class BinaryTree<T> extends BinaryNode<T> implements BinaryTreeInterface<T>, TreeIteratorInterface<T> {
+	//Declare root data field
+	BinaryNode<T> root;
+	
+	public BinaryTree() {
+		root = null;
+	}
+	
+	public BinaryTree(T rootData) {
+		root = new BinaryNode<T>(rootData);
+	}
+	
+	public BinaryTree(T rootData, BinaryTree<T> leftTree,BinaryTree<T> rightTree) {
+		initializeTree(rootData, leftTree, rightTree);
+		
+	}
+	
+	public void setTree(T rootData, BinaryTreeInterface<T> leftTree,BinaryTreeInterface<T> rightTree) {
+		initializeTree(rootData, (BinaryTree<T>) leftTree,(BinaryTree<T>) rightTree);
+	}// end set tree
+	
+	private void initializeTree(T rootData, BinaryTree<T> leftTree,BinaryTree<T> rightTree) {
+		root = new BinaryNode<T>(rootData);
+		
+		if((leftTree != null) && !leftTree.isEmpty())
+			root.setLeftChild(leftTree.root);
+		
+		if((rightTree != null) && !rightTree.isEmpty()) {
+			if(rightTree != leftTree)
+				root.setRightChild(rightTree.root);
+			else
+				root.setRightChild(rightTree.root.copy());
+		}
+		if((leftTree != null) && leftTree != this)
+			leftTree.clear();
+		
+		if((rightTree != null) && rightTree != this)
+			rightTree.clear();
+					
+	}// End initalizeTree
+ 	
+	public void setRootData(T rootData) {
+		root.setData(rootData);
+	}
+	
+	public T getRootData(){
+		if(isEmpty())
+			throw new EmptyTreeException();
+		else
+			return root.getData();
+	}
+	
+	public boolean isEmpty() {
+		return root == null;
+	}
+	
+	public void clear() {
+		root = null;
+	}
+	
+	protected void setRootNode(BinaryNode<T> rootNode) {
+		root = rootNode;
+	}
+	
+	protected BinaryNode<T> getRootNode(){
+		return root;
+	}
+	
+	public int getHeight() {
+		int height = 0;
+		if(root != null)
+			height = root.getHeight();
+		return height;
+	}
+	
+	public int getNumberOfNodes() {
+		int numberOfNodes = 0;
+		if(root != null)
+			numberOfNodes = root.getNumberOfNodes();
+		return numberOfNodes;
+	}
+	
+	//Can display data but it cannot be altered
+	public void inorderTraverse() {
+		inorderTraverse(root);
+		
+	}
+	
+	void inorderTraverse(BinaryNode<T> node) {
+		if(node != null) {
+			inorderTraverse(node.getLeftChild());
+			System.out.println(node.getData());
+			inorderTraverse(node.getRightChild());
+		}
+	}
+		
+		
+	public Iterator<T> getPreorderIterator() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	public Iterator<T> getPostorderIterator() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Iterator<T> getInorderIterator() {
+		// TODO Auto-generated method stub
+		return new InorderIterator();
+	}
+	
+	private class InorderIterator implements Iterator<T>{
+		private StackInterface<BinaryNode<T>> nodeStack;
+		private BinaryNode<T> currentNode;
+		
+		public InorderIterator() {
+			nodeStack = new LinkedStack<BinaryNode<T>>();
+			currentNode = root;
+		}
+
+		@Override
+		public boolean hasNext() {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public T next() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+	}
+
+	@Override
+	public Iterator<T> getLevelOrderIterator() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+}// End BinaryTree Class
+
+
+class BinaryNode<T>{
+	private T data;
+	private  BinaryNode<T> leftChild;
+	private BinaryNode<T> rightChild;
+	
+	public BinaryNode() {
+		this(null); //call next constructor
+	}//end default constructor
+	
+	public BinaryNode(T dataPortion) {
+		this(dataPortion, null, null); //call next constructor
+	}// end constructor
+	
+	public BinaryNode(T dataPortion, BinaryNode<T> newLeftChild, BinaryNode<T> newRightChild) {
+		data = dataPortion;
+		leftChild = newLeftChild;
+		rightChild = newRightChild;
+	}
+	
+	//Retrieves the data portions of this node
+	//@returns the object in the data portion of the node.
+	public T getData() {
+		return data;
+	}
+	
+	//Sets the data portion of this node
+	//@param newData the data object
+	public void setData(T newData) {
+		data = newData;
+	}
+	
+	//Retrieves the left child of this node
+	//@returns a reference to this nodes left child
+	public BinaryNode<T> getLeftChild(){
+		return leftChild;
+	}
+	
+	// Sets this nodes left child to a given node
+	//@param newLeftChild A node that will be the left child
+	public void setLeftChild(BinaryNode<T> newLeftChild) {
+		leftChild = newLeftChild;
+	}
+	
+	//Detects whether this node has a left child
+	//@return true if the node has a left child
+	public boolean hasLeftChild() {
+		return leftChild != null;
+	}
+	
+	//Retrieves the right child of this node
+	//@returns a reference to this nodes right child
+	public BinaryNode<T> getRightChild(){
+		return rightChild;
+	}
+	
+	// Sets this nodes right child to a given node
+	//@param newRightChild A node that will be the right child
+	public void setRightChild(BinaryNode<T> newRightChild) {
+		rightChild = newRightChild;
+	}
+	
+	//Detects whether this node has a right child
+	//@return true if the node has a right child
+	public boolean hasRightChild() {
+		return rightChild != null;
+	}
+		
+	//detects whether this node is a leaf
+	//@returns true if the node is a leaf
+	public boolean isLeaf() {
+		return (leftChild == null) && (rightChild == null);
+	}
+	
+	//Counts the nodes in the subtree rooted at this node
+	//@returns the number of nodes in the subtree rooted at this node
+	public int getNumberOfNodes() {
+		int leftNumber = 0;
+		int rightNumber = 0;
+		if(leftChild != null)
+			leftNumber = leftChild.getNumberOfNodes();
+		if(rightChild != null)
+			rightNumber = rightChild.getNumberOfNodes();
+		return 1 + leftNumber + rightNumber;
+	}
+	
+	//Computes the height of the subtree rooted at this node
+	//@ returns the height of the subtree rooted at this node
+	public int getHeight() {
+		return getHeight(this); // call private getHeight		
+	}
+	
+	private int getHeight(BinaryNode<T> node) {
+		int height = 0;
+		if(node != null)
+			height = 1 + Math.max(getHeight(node.getLeftChild()), getHeight(node.getRightChild()));
+		return height;
+	}// end getHeight
+	
+	//Copies the subtree rooted at this node
+	//@returns the root of a copy of the subtree rooted at this node
+	public BinaryNode<T> copy(){
+		BinaryNode<T> newRoot = new BinaryNode<T>(data);
+		if(leftChild != null)
+			newRoot.setLeftChild(leftChild.copy());
+		if(rightChild != null)
+			newRoot.setRightChild(rightChild.copy());
+		return newRoot;
+	}// End copy
+}
+//EmptyTreeException
+class EmptyTreeException extends RuntimeException{
+	public EmptyTreeException() {
+		super("Error Tree is empty");
+	}
+}
+
+class LinkedStack<T> implements StackInterface<T>{
+	private Node topNode;
+	public LinkedStack() {
+		topNode = null;
+	}
+	//Stack ops go here
+	
+	private class Node{
+		private T data;
+		private Node next;
+	}
+	@Override
+	public void push(T newEntry) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public T pop() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public T peek() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public boolean isEmpty() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	@Override
+	public void clear() {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	/*
+	 The tree before sort: 
+5
+24
+6
+45
+15
+Tree after BST implementation
+5
+6
+15
+24
+45
+The height of the this tree is: 4
+Enter an entry youd like to find in the tree 
+15
+15 has been found in the tree
+	 */
+	
+}
