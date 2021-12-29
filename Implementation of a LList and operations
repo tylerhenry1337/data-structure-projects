@@ -1,0 +1,234 @@
+interface ListInterface<T> {
+  public void add(T newEntry);
+  public void add(int givenPosition, T newEntry);
+  public T remove(int givenPosition);
+  public void clear();
+  public T replace(int givenPosition, T newEntry);
+  public T getEntry(int givenPosition);
+  public T[] toArray();
+  public boolean contains(T anEntry);
+  public int getLength();
+  public boolean isEmpty();
+  public void printList();
+}
+public class LList3 <T> implements ListInterface <T>{
+    private Node firstNode;
+    private int numberOfEntries;
+    public LList3(){
+      initializeDataFields();
+    } 
+    public void clear(){
+      initializeDataFields();
+    }
+    
+    //Adds a new node to the end of the list
+    public void add(T newEntry) {
+      Node newNode = new Node(newEntry);
+      if (isEmpty()){
+          firstNode = newNode;
+      } 
+      
+      // Add to end of non-empty list
+      else {
+        Node lastNode = getNodeAt(numberOfEntries);
+        lastNode.setNextNode(newNode); // Make last node reference new node
+      }
+      numberOfEntries++;
+    } 
+    
+    // Add method to insert a new node into the list at a givenPosition
+    public void add(int givenPosition, T newEntry){
+      if ((givenPosition >= 1) && (givenPosition <= numberOfEntries + 1)){
+        Node newNode = new Node(newEntry);
+        if (givenPosition == 1){
+          newNode.setNextNode(firstNode);
+          firstNode = newNode;
+        } 
+        else{                   
+          Node nodeBefore = getNodeAt(givenPosition - 1);
+          Node nodeAfter = nodeBefore.getNextNode();
+          newNode.setNextNode(nodeAfter);
+          nodeBefore.setNextNode(newNode);
+        }
+        numberOfEntries++;
+      } 
+      else
+         throw new IndexOutOfBoundsException("Illegal position given to add operation.");
+    } 
+    
+    //Removes the first entry from the list and @returns value 
+    public T remove(int givenPosition){
+      T result = null;              // Return value
+      if ((givenPosition >= 1) && (givenPosition <= numberOfEntries)){
+        if (givenPosition == 1){
+          result = firstNode.getData(); // Save entry to be removed
+          firstNode = firstNode.getNextNode(); // Remove entry
+        }
+        
+        else {
+          Node nodeBefore = getNodeAt(givenPosition - 1);
+          Node nodeToRemove = nodeBefore.getNextNode();
+          result = nodeToRemove.getData();         // Save entry to be removed
+          Node nodeAfter = nodeToRemove.getNextNode();
+          nodeBefore.setNextNode(nodeAfter);       // Remove entry
+        } 
+        numberOfEntries--; 
+        return result; 
+      } 
+      else
+        throw new IndexOutOfBoundsException("Illegal position given to remove operation.");
+    }
+    
+    //Method traverses the chain and copies the data in each node to an element within an array
+    public T[] toArray(){
+      @SuppressWarnings("unchecked")
+      T[] result = (T[]) new Object[numberOfEntries];
+      int index = 0;
+      Node currentNode = firstNode;
+      while ((index < numberOfEntries) && (currentNode != null)){
+        result[index] = currentNode.getData();
+        currentNode = currentNode.getNextNode();
+        index++;
+      }
+      return result;
+    }
+    
+    public int getLength(){
+      return numberOfEntries;
+    }
+    
+    //Replaces a list entry at a given position
+    public T replace(int givenPosition, T newEntry){
+      if ((givenPosition >= 1) && (givenPosition <= numberOfEntries)){
+        Node desiredNode = getNodeAt(givenPosition);
+        T originalEntry = desiredNode.getData();
+        desiredNode.setData(newEntry);
+        return originalEntry;
+      } 
+      else
+        throw new IndexOutOfBoundsException("Illegal position given to replace operation.");
+    }   
+    
+    //Returns an node at a givenposition
+    public T getEntry(int givenPosition){
+      if ((givenPosition >= 1) && (givenPosition <= numberOfEntries)){
+        assert!isEmpty();
+        return getNodeAt(givenPosition).getData();
+      } 
+      else
+        throw new IndexOutOfBoundsException("Illegal position given to getEntry operation.");
+    }
+    
+    //Boolean to check if an entry exists
+    public boolean contains(T anEntry){
+      boolean found = false;
+      Node currentNode = firstNode;
+      while (!found && (currentNode != null)){
+        if (anEntry.equals(currentNode.getData()))
+          found = true;
+        else
+          currentNode = currentNode.getNextNode();
+      } 
+      return found;
+    }
+    //method to print the contents of the linked list
+    public void printList(){
+Node newNode = firstNode;
+while(newNode != null){
+    System.out.println(newNode.data);
+    newNode = newNode.next;
+    }
+}
+   //Boolean to check if the list is empty
+   public boolean isEmpty(){
+      boolean result;
+      if (getLength()==0){
+        result = true;
+      } 
+      else{
+        result = false;
+      } 
+      return result;
+    }
+    private void initializeDataFields(){
+      firstNode = null;
+      numberOfEntries = 0;
+    } 
+    private Node getNodeAt(int givenPosition){
+      Node currentNode = firstNode;
+      for (int counter = 1; counter < givenPosition; counter++)
+        currentNode = currentNode.getNextNode();
+      return currentNode;
+    }
+    private class Node{
+      private T data; // Entry in list
+      private Node next; // Link to next node
+      private Node(T dataPortion){
+        data = dataPortion;
+        next = null;
+      } 
+      private Node(T dataPortion, Node nextNode){
+        data = dataPortion;
+        next = nextNode;
+      } 
+      private T getData(){
+        return data;
+      } 
+      private void setData(T newData){
+        data = newData;
+      } 
+      private Node getNextNode(){
+        return next;
+      } 
+      private void setNextNode(Node nextNode){
+        next = nextNode;
+      } 
+    } 
+    
+    public static void main(String[] args) {
+      System.out.println("create an empty list.");
+      ListInterface < String > myList = new LList3 < > ();
+      System.out.println("List should be empty; isEmpty returns " + myList.isEmpty() + ".");
+      System.out.println("\nTesting add to end: ");
+      myList.add("15");
+      myList.add("25");
+      myList.add("35");
+      myList.add("45");
+      myList.add("55");
+      myList.add("65");
+      myList.add(7, "65");
+      myList.remove(6);
+      myList.replace(3, "25");
+myList.getEntry(1);
+      System.out.println("\nList contains: ");
+      myList.printList();
+      System.out.println("List should not be empty; isEmpty() returns " + myList.isEmpty() + ".");
+      System.out.println("\nTesting clear():");
+      myList.clear();
+      System.out.println("List should be empty; isEmpty returns " + myList.isEmpty() + ".");
+      System.out.println("Testing the dummy node inside an empty list"+ "\n The list contains: ");
+      myList.printList();
+    }
+  }
+  /*
+    create an empty list.
+ List should be empty; isEmpty returns true.
+ 
+ Testing add to end: 
+ 
+ List contains: 
+ 15
+ 25
+ 25
+ 45
+ 55
+ 65
+ List should not be empty; isEmpty() returns false.
+ 
+ Testing clear():
+ List should be empty; isEmpty returns true.
+ Testing the dummy node inside an empty list
+  The list contains:
+  
+ */
+Text only submission
