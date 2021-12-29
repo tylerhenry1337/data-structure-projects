@@ -1,0 +1,197 @@
+import java.util.EmptyStackException;
+
+interface DequeInterface<T>{
+	//add front and beck entries to the deck
+	public void addToFront(T newEntry);
+	public void addToBack(T newEntry);
+	
+	//Remove the front and back entries from the deck
+	public T removeFront();
+	public T removeBack();
+	
+	//Retrieve the front and back entries of the deque
+	public T getFront();
+	public T getBack();
+	
+	//Detects whether deque is empty @returns true if it is
+	public boolean isEmpty();
+		
+}
+
+//ArrayDeque class using an array to contain the entries implementing DequeInterface with a generic data-type.
+public class ArrayDeque<T> implements DequeInterface<T> {
+	private T[] deque;
+	private int front;
+	private int  back;
+	private boolean integrityOK;
+	private static final int DEFAULT_CAPACITY = 50;
+	private static final int MAX_CAPACITY = 10000;
+	
+	public ArrayDeque() {
+		this(DEFAULT_CAPACITY);
+	}
+		
+	public ArrayDeque(int initialCapacity) {
+		integrityOK = false;
+	    checkCapacity(initialCapacity);
+		@SuppressWarnings("unchecked")
+		T[] tempDeque = (T[]) new Object[initialCapacity + 1];
+		deque = tempDeque;
+		front = 0;
+		back = initialCapacity;
+		integrityOK = true;
+	}
+
+	public void addToFront(T newEntry) {
+		
+		checkIntegrity();
+		ensureCapacity();
+		if(front == -1) {
+			front = 0;
+			back = 0;
+		}
+		else if(front == 0)
+			front = DEFAULT_CAPACITY - 1;
+		else
+			front--;
+		deque[front] = newEntry;
+			
+	}
+	
+	public void addToBack(T newEntry) {
+		checkIntegrity();
+		ensureCapacity();
+		back = (back + 1) % deque.length;
+		deque[back] = newEntry;
+
+	}
+	
+	public T removeFront() {
+		if(isEmpty()) {
+			throw new EmptyStackException();
+		}
+		else {
+			T frontDeque = deque[(int) front];
+			deque[(int) front] = null;
+			front = (front + 1) % MAX_CAPACITY;
+			return frontDeque;
+		}
+		
+	}
+	
+	public T removeBack() {
+		if(isEmpty()) {
+			throw new EmptyStackException();
+		}
+		else {
+			T backDeque = (T) deque[back];
+			deque[(int)back] = null;
+			back--;
+			return  backDeque;
+		}
+		
+	
+	}
+	
+	public T getFront() {
+		checkIntegrity();
+		if(isEmpty()) {
+			throw new EmptyStackException();
+			
+		}
+		return deque[front];
+	}
+
+	public T getBack() {
+		checkIntegrity();
+		ensureCapacity();
+		if(isEmpty() || back < 0) {
+			throw new EmptyStackException();
+		}
+		return deque[back];
+	}
+	
+	public boolean isEmpty() {		
+		return (front == back  - 1);
+	}
+	
+	//private methods to expand the array dynamically
+	private void ensureCapacity() {
+		if(front ==((back + 2) % deque.length)) {
+			T[] oldDeque = deque;
+			int oldSize = oldDeque.length;
+			int newSize = 2* oldSize;
+			checkCapacity(newSize - 1);
+			integrityOK = false;
+			@SuppressWarnings("unchecked")
+			T[] tempDeque = (T[]) new Object[newSize];
+			deque = tempDeque;	
+			System.out.println("This did something");
+			for(int i = 0; i < oldSize - 1; i ++) {
+				deque[i] = oldDeque[front];
+				front = (front + 1) % oldSize;
+			}
+			front = 0;
+			back = oldSize - 2;
+			integrityOK = true;
+			
+		}
+		
+	}
+	private void checkCapacity(int capacity){
+		if(capacity > MAX_CAPACITY) throw new IllegalStateException();
+	}
+	private void checkIntegrity(){
+		if(!integrityOK)
+			throw new SecurityException();
+	}
+
+		public static void main(String[] args) {
+		DequeInterface<Integer> deque = new ArrayDeque<Integer>();
+		deque.addToFront(1);
+		deque.addToBack(2);
+		deque.addToFront(3);
+		deque.addToBack(4);
+		deque.addToFront(5);
+		
+		int front = deque.getFront();
+		System.out.println(front + " is at the front of the deque. ");
+		
+		front = deque.removeFront();
+		System.out.println(front + " is removed from the deque. ");
+		
+		int front2 = deque.getFront();
+		System.out.println(front2 + " is at the front of the deque. ");
+		
+		front2 = deque.removeFront();
+		System.out.println(front2 + " is removed from the deque. ");
+		
+		int front3 = deque.getFront();
+		System.out.println(front3 + " is at the front of the deque. ");
+		
+		int back = deque.getBack();
+		System.out.println(back + " is at the back of the deque. ");
+		
+		back = deque.removeBack();
+		System.out.println(back + " is removed from the deque. ");
+		
+		int back2 = deque.getBack();
+		System.out.println(back2 + " is at the back of the deque. ");
+		
+		back2 = deque.removeBack();
+		System.out.println(back2 + " is removed from the deque. ");
+		
+	}
+}
+/*
+5 is at the front of the deque. 
+5 is removed from the deque. 
+3 is at the front of the deque. 
+3 is removed from the deque. 
+1 is at the front of the deque. 
+4 is at the back of the deque. 
+4 is removed from the deque. 
+2 is at the back of the deque. 
+2 is removed from the deque. 
+
+ */
