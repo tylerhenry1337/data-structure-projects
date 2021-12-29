@@ -1,0 +1,160 @@
+public class QuickSort {
+	public static final int MIN_SIZE = 10;
+	//Iterative implementation of selection sort algorithm
+	//sorts first objects in an array into ascending order
+	public static <T extends Comparable<? super T>> void selectionSort(T[] a, int n) {
+		for(int i = 0; i < n-1; i++) {
+			int indexOfNextSmallest = getIndexOfSmallest(a, i, n - 1);
+			swap(a, i, indexOfNextSmallest);
+		}
+	}
+	//finds the index of the smallest value in a portion of an array a
+	private static <T extends Comparable<? super T>> int getIndexOfSmallest(T[] a, int first, int last) {
+		T min = a[first];
+		int indexOfMin = first;
+		for(int i = first + 1; i <= last; i++) {
+			if(a[i].compareTo(min)< 0) {
+				min = a[i];
+				indexOfMin = i;
+			}
+		}
+		return indexOfMin;
+	}
+	//Swaps the array entries a[i] and a[j]
+	private static void swap(Object[] a, int i, int j) {
+		Object temp = a[i];
+		a[i] = a[j];
+		a[j] = temp;
+	}
+	//End selection sort algorithm
+	
+	//Quick sort algorithm implementation
+	public static <T extends Comparable<? super T>> void quickSort(T[] a, int first, int last) {
+		if(last - first + 1 < MIN_SIZE) {
+			insertionSort(a,first, last);
+		}
+		
+		//Sorts the Array entries a[first ... last] recursively
+		else {
+			int pivotIndex = partition(a, first, last);
+			quickSort(a, first, pivotIndex - 1);
+			quickSort(a, pivotIndex + 1, last);
+		}
+	}
+	
+	//Sorts the first, middle, and last entries of an array into ascending order
+	private static <T extends Comparable<? super T>> void sortFirstMiddleLast(T[] a, int first, int mid, int last) {
+		if(a[first].compareTo(a[mid]) > 0)
+			swap(a, first, mid);
+		if(a[mid].compareTo(a[last]) > 0) {
+			swap(a, mid, last);
+			//re-do first comparison since a[mid] changed
+			if(a[first].compareTo(a[mid]) > 0)
+				swap(a,first, mid);
+		}
+	}
+	
+
+	private static <T extends Comparable<? super T>> int partition(T[] a, int first, int last) {
+		//choose pivot
+		int mid = (first + last)/2;
+		sortFirstMiddleLast(a, first, mid, last);
+		swap(a, mid, last - 1);    //move pivot
+		int pivotIndex = last - 1;
+		T pivot = a[pivotIndex];
+		
+		int indexFromLeft = first + 1;
+		int indexFromRight = last - 2;
+		boolean done = false;
+		while(!done) {
+			while(a[indexFromLeft].compareTo(pivot) < 0) {
+				indexFromLeft++;
+			}
+			while(a[indexFromRight].compareTo(pivot) > 0) {
+				indexFromRight--;
+			}
+			if(indexFromLeft < indexFromRight) {
+				swap(a, indexFromLeft, indexFromRight);
+				indexFromLeft++;
+				indexFromRight--;
+			}
+			else
+				done = true;
+		}
+		swap(a, pivotIndex, indexFromLeft);    //place pivot
+		pivotIndex = indexFromLeft;
+		return pivotIndex;
+	}
+	//end of quick sort implementation
+	
+	//Insertion sort implementation for handling low integer arrays
+	public static <T extends Comparable<? super T>> void insertionSort(T[] a, int first, int last) {
+		if(first < last) {
+			//sort all but last entry
+			insertionSort(a, first, last - 1);
+			insertInOrder(a[last], a, first, last - 1);
+//			System.out.println("array was to small for quick sort so insertion sort was used");
+		}
+
+
+	}
+	public static <T extends Comparable<? super T>> void insertInOrder(T anEntry, T[] a, int first, int last) {
+		if(anEntry.compareTo(a[last]) < 0)
+			a[last + 1] = anEntry;
+		else if(first < last) {
+			a[last + 1] = a[last];
+			insertInOrder(anEntry, a, first, last - 1);
+		}
+		else {
+			a[last + 1] = a[last];
+			a[last] = anEntry;
+		}
+	}
+	
+	
+
+	
+
+	
+	public static void main(String[] args) {
+		int size = 50000;
+		Integer[] a =  new Integer[size];
+		int originalArray[] = new int[size];
+		for(int i =0; i < size; i ++) {
+			originalArray[i] = (int)(Math.random() * 1001);
+		}
+		for(int i = 0; i < size; i++) {
+			a[i] = originalArray[i];
+		}
+		
+		long startTime = System.currentTimeMillis();
+		selectionSort(a, size);
+		long endTime = System.currentTimeMillis();	
+		long timeNeeded = endTime - startTime;
+		
+		System.out.println("Time required for selection sort is:" + timeNeeded + " ms");
+		
+		
+		long startTime2 = System.currentTimeMillis();		
+		quickSort(a, 0, size - 1);
+		long endTime2 = System.currentTimeMillis();	
+		long timeNeeded2 = endTime2 - startTime2;
+		
+		System.out.println("Time required for quick sort is:" + timeNeeded2 + " ms");
+		}
+
+}
+
+/*
+Three different outputs of the code
+
+Time required for selection sort is:1377 ms
+Time required for quick sort is:8 ms
+
+Time required for selection sort is:1391 ms
+Time required for quick sort is:9 ms
+
+Time required for selection sort is:1383 ms
+Time required for quick sort is:8 ms
+
+ */
