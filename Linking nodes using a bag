@@ -1,0 +1,161 @@
+import java.util.Scanner;
+//public interface with a generic datatype
+   interface BagInterface<T> {
+	public boolean add(T newEntry);
+	public boolean remove(T anEntry);
+   public T[] toArray();
+   public void printBag();
+   public boolean contains(T anEntry);
+}
+
+
+public class LinkedBag1<T> implements BagInterface<T> {
+	private Node firstNode;
+	private int numberOfEntries;
+   
+	public LinkedBag1() {
+		firstNode = null;
+		numberOfEntries = 0;
+	}
+      
+	//Method to add an entry to the bag
+	public boolean add(T newEntry) {
+		Node newNode = new Node(newEntry);
+		newNode.next = firstNode;
+		firstNode = newNode;
+		numberOfEntries++;
+		System.out.println(newNode.data + " has been added to the bag");
+		return true;
+	}
+   //method to convert the bag to an array
+   public T[] toArray(){
+      @SuppressWarnings("unchecked")
+      T[] result = (T[]) new Object[numberOfEntries];
+      int i = 0;
+      Node currentNode = firstNode;
+      while((i < numberOfEntries) && (currentNode != null)){
+            result[i] = currentNode.data;
+            i++;
+            currentNode = currentNode.next;
+               
+      }
+      return result;
+    }
+   //Method to reference the entry thats going to be removed
+	private Node getReferenceTo(T anEntry) {
+		boolean found = false;
+		Node currentNode = firstNode;
+		while(!found && (currentNode != null)) {
+			if(anEntry.equals(currentNode.data)){
+            found = true;
+         }
+         else{
+            currentNode = currentNode.next;
+         }
+						
+		}  
+		return currentNode;
+	}
+   //Method to remove and entry that already exists from the bag
+	public boolean remove(T anEntry) {
+		boolean result = false;
+		Node nodeN = getReferenceTo(anEntry);
+		if(nodeN != null) {
+			nodeN.data = firstNode.data; //replace located entry with name
+			firstNode = firstNode.next; //remove first node
+			numberOfEntries--;
+			result = true;
+			System.out.println(nodeN.data + " was deleted from the bag ");
+		}
+		return result;
+	}
+   //Method to check the bag and see if an entry already exists
+   public boolean contains(T anEntry){
+      boolean found = false;
+      Node currentNode = firstNode;
+      while(!found && (currentNode != null)){
+            if(anEntry.equals(currentNode.data))
+               found = true;
+            else
+               currentNode = currentNode.next;
+      }
+      return found;
+   }
+	private class Node{
+		private T data;
+		private Node next;
+		private Node(T dataPortion) {
+			this(dataPortion,null);
+		}
+		private Node(T dataPortion, Node nextNode) {
+			data = dataPortion;
+			next = nextNode;
+		}
+	}
+   //Method to print the contents in the bag
+   public void printBag(){
+      Node newNode = firstNode;
+      while(newNode != null){
+         System.out.println(newNode.data);
+         newNode = newNode.next;
+      }
+   }
+   
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		System.out.println("Enter quantity of names to add to the bag: ");
+      int n = sc.nextInt(); //bag size and size of name array
+      BagInterface<String> bag = new LinkedBag1<String>();
+      System.out.println("Enter the names you'd like to add to the bag.");     
+      sc.nextLine();      
+		String names;
+      for (int i = 0; i < n; i++){
+         names = sc.nextLine();
+         bag.add(names);
+      }
+      
+      Object[] allNames = bag.toArray();
+    		
+		System.out.println("Enter a name to remove from the bag ");
+		String nameRemoved = sc.nextLine();
+		bag.remove(nameRemoved);
+      
+      System.out.println("Enter a name to check if it already exists ");
+      String nameCheck = sc.nextLine();
+      if(bag.contains(nameCheck)){
+         System.out.println("bag contains " + nameCheck);
+      }
+      else
+         System.out.println("bag does not contain name ");
+      
+      System.out.println("The names left in the bag are: ");
+      bag.printBag();
+      
+      
+	}
+
+}
+/*
+Output for above program
+Enter quantity of names to add to the bag: 
+ 3
+ Enter the names you'd like to add to the bag.
+ Tyler
+ Tyler has been added to the bag
+ Henry
+ Henry has been added to the bag
+ Logan
+ Logan has been added to the bag
+ Henry
+ Enter a name to remove from the bag 
+ Logan
+ Logan was deleted from the bag 
+ Enter a name to check if it already exists 
+ Tyler
+ bag contains Tyler
+ The names left in the bag are: 
+ Henry
+ Tyler
+ 
+
+*/
